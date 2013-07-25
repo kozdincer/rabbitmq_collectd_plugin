@@ -1,4 +1,4 @@
-collectd_plugins
+Collectd Plugin for RabbitMq
 ================
 
-Collectd Plugins
+Collectd Plugin for RabbitMq and Config File.
