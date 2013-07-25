@@ -47,6 +47,7 @@ class RabbitMqStatus():
 
 # Config data from collectd
 def configure_callback(conf):
+    log('verb', 'Config callback Running')
     for node in conf.children:
         if node.key == 'RmqcBin':
             RABBITMQCTL_BIN = node.values[0]
