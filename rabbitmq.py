@@ -92,7 +92,6 @@ def get_rabbitmqctl_status():
 
 def log(t, message):
     print "LOG:", t, message
-"""
     if t == 'err':
         collectd.error('%s: %s' %(NAME, message))
     elif t == 'warn'
@@ -101,7 +100,6 @@ def log(t, message):
         collectd.info('%s: %s' %(NAME, message))
     else:
         collectd.info('%s: %s' %(NAME, message))
-"""
 
 # Register to collectd
 collectd.register_config(configure_callback)
