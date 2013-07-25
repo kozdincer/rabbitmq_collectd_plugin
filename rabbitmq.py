@@ -94,7 +94,7 @@ def log(t, message):
     print "LOG:", t, message
     if t == 'err':
         collectd.error('%s: %s' %(NAME, message))
-    elif t == 'warn'
+    elif t == 'warn':
         collectd.warning('%s: %s' %(NAME, message))
     elif t == 'verb' and VERBOSE == True:
         collectd.info('%s: %s' %(NAME, message))
