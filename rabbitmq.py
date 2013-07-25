@@ -92,7 +92,6 @@ def get_rabbitmqctl_status():
 
 
 def log(t, message):
-    print "LOG:", t, message
     if t == 'err':
         collectd.error('%s: %s' %(NAME, message))
     elif t == 'warn':
