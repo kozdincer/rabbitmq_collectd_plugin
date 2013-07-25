@@ -64,7 +64,7 @@ def read_callback():
     # Send keys to collectd
     for key in info:
         log('verb', 'Sent %s %i' %(key, info[key]))
-        value = collectd.values(plugin=NAME)
+        value = collectd.Values(plugin=NAME)
         value.type = 'gauge'
         value.type_instance = key
         value.values = [int(info[key])]
