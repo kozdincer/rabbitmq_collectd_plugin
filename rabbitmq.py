@@ -47,7 +47,7 @@ class RabbitMqStatus():
 
 # Config data from collectd
 def configure_callback(conf):
-    log('verb', 'Config callback Running')
+    log('verb', 'configure_callback Running')
     for node in conf.children:
         if node.key == 'RmqcBin':
             RABBITMQCTL_BIN = node.values[0]
@@ -58,12 +58,12 @@ def configure_callback(conf):
 
 # Send rabbitmq stats to collectd
 def read_callback():
-    log('verb', 'Read callback Running')
+    log('verb', 'read_callback Running')
     info = get_rabbitmqctl_status()
     
     # Send keys to collectd
     for key in info:
-        log('verb', 'Sent %s %i' %(key, info[key]))
+        log('verb', 'Sent value: %s %i' %(key, info[key]))
         value = collectd.Values(plugin=NAME)
         value.type = 'gauge'
         value.type_instance = key
