@@ -1,7 +1,5 @@
 import collectd
 import subprocess
-import re
-
 
 NAME = 'rabbitmq_status'
 RABBITMQCTL_BIN = '/usr/sbin/rabbitmqctl'
