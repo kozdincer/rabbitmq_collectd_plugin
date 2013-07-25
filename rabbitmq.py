@@ -22,8 +22,11 @@ class RabbitMqStatus():
             m = self.clear_line(m.strip())
             self.stats_array.append(m)
 
-        self.memory_total = self.get_stat('total')
-        self.disk_free = self.get_stat('disk_free')
+        self.file_descriptors = self.get_stat('total_used')
+        self.socket_descriptors = self.get_stat('sockets_used')
+        self.erlang_processes = self.get_stat('used')
+        self.memory = self.get_stat('total')
+        self.disk_space = self.get_stat('disk_free')
         self.uptime = self.get_stat('uptime')
 
     # Return all 'rabbitmqctl status' output
@@ -84,8 +87,11 @@ def get_rabbitmqctl_status():
         return None
 
     rs = RabbitMqStatus(p.stdout.read())
-    stats['memory_total'] = int(rs.memory_total)
-    stats['disk_free'] = int(rs.disk_free)
+    stats['file_descriptors'] = int(rs.file_descriptors)
+    stats['socket_descriptors'] = int(rs.socket_descriptors)
+    stats['erlang_processes'] = int(rs.erlang_processes)
+    stats['memory'] = int(rs.memory)
+    stats['disk_space'] = int(rs.disk_space)
     stats['uptime'] = int(rs.uptime)
 
     return stats
