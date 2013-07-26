@@ -5,7 +5,7 @@ NAME = 'rabbitmq_status'
 RABBITMQCTL_BIN = '/usr/sbin/rabbitmqctl'
 VERBOSE = True
 
-class RabbitMqStatus():
+class RabbitMqReport():
     def __init__(self, message):
         self.message = message
         self.stats_array = []
@@ -84,7 +84,7 @@ def get_rabbitmqctl_status():
         log('err', 'Failed to run %s' %RABBITMQCTL_BIN)
         return None
 
-    rs = RabbitMqStatus(p.stdout.read())
+    rs = RabbitMqReport(p.stdout.read())
     stats['file_descriptors'] = int(rs.file_descriptors)
     stats['socket_descriptors'] = int(rs.socket_descriptors)
     stats['erlang_processes'] = int(rs.erlang_processes)
