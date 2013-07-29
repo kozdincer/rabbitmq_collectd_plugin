@@ -83,8 +83,16 @@ def get_rabbitmqctl_status():
 def configure_callback(conf):
     log('verb', 'configure_callback Running')
     for node in conf.children:
-        if node.key == 'RmqcBin':
-            RABBITMQCTL_BIN = node.values[0]
+        if node.key == 'Name':
+            NAME = node.values[0]
+        elif node.key == 'Host':
+            HOST = node.values[0]
+        elif node.key == 'Port':
+            PORT = node.values[0]
+        elif node.key == 'User':
+            USER = node.values[0]
+        elif node.key == 'Pass':
+            PASS = node.values[0]
         elif node.key == 'Verbose':
             VERBOSE = node.values[0]
         else:
