@@ -34,19 +34,21 @@ VERBOSE = True
 def get_rabbitmqctl_status():
     stats = {}
     
-    #url = 'http://%s:%s/api/overview' %(HOST, PORT)
-    #passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
-    #passman.add_password(None, url, USER, PASS)
-    #authhandler = urllib2.HTTPBasicAuthHandler(passman)
-    #opener = urllib2.build_opener(authhandler)
-    #urllib2.install_opener(opener)
-    #overview_json = urllib2.urlopen(url).read() 
+    url_overview = 'http://%s:%s/api/overview' %(HOST, PORT)
+    passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+    passman.add_password(None, url_overview, USER, PASS)
+    authhandler = urllib2.HTTPBasicAuthHandler(passman)
+    opener = urllib2.build_opener(authhandler)
+    urllib2.install_opener(opener)
+    overview = json.load(urllib2.urlopen(url_overview)) 
 
-    with open('my.json') as my:
-        overview = json.load(my)
-
-    with open('nodes.json') as my:
-        nodes = json.load(my)
+    url_nodes = 'http://%s:%s/api/nodes' %(HOST, PORT)
+    passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+    passman.add_password(None, url_nodes, USER, PASS)
+    authhandler = urllib2.HTTPBasicAuthHandler(passman)
+    opener = urllib2.build_opener(authhandler)
+    urllib2.install_opener(opener)
+    nodes = json.load(urllib2.urlopen(url_nodes))
 
     # Message Stats
     stats['ack_rate'] = int(overview['message_stats']['ack_details']['rate'])
@@ -112,8 +114,6 @@ def log(t, message):
         collectd.info('%s: %s' %(NAME, message))
     else:
         collectd.info('%s: %s' %(NAME, message))
-
-print get_rabbitmqctl_status()
 
 # Register to collectd
 collectd.register_config(configure_callback)
