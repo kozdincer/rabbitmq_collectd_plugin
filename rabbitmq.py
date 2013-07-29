@@ -9,7 +9,7 @@ VERBOSE = True
 class RabbitMqReport():
     def __init__(self, report):
         self.report = report
-        self.status = self.get_status('Status of')
+        self.status = self.get_infos('Status of')
         self.status_array = []
 
         # Remove unnecessary outputs
@@ -28,16 +28,20 @@ class RabbitMqReport():
         self.memory = self.get_status('total')
         self.disk_space = self.get_status('disk_free')
         self.uptime = self.get_status('uptime')
-        self.connections_count = get_count('Connections:')
-        self.log('CCCCC: %d' %sekf.connections_count)
+        self.connections_count = self.get_count('Connections:')
+        self.channels_count = self.get_count('Channels:')
+        self.exchanges_count = self.get_count('Exchanges on')
+        self.queues_count = self.get_count('Queues on')
+        self.consumers_count = self.get_count('Consumers on')
 
     def get_count(self, stat):
-        return len(stat.split('\n')) - 1
+        count = len(self.get_infos(stat).split('\n')) - 1
+        return count
 
-    def get_infos(report, info_name):
-        beg = report.find(info_name)
-        end = report.find('\n\n', beg)
-        return report[beg:end]
+    def get_infos(self, info_name):
+        beg = self.report.find(info_name)
+        end = self.report.find('\n\n', beg)
+        return self.report[beg:end]
 
     # Return stat value from name
     def get_status(self, stat_name):
@@ -99,10 +103,14 @@ def get_rabbitmqctl_status():
     stats['memory'] = int(rs.memory)
     stats['disk_space'] = int(rs.disk_space)
     stats['uptime'] = int(rs.uptime)
+    stats['connections_count'] = int(rs.connections_count)
+    stats['channels_count'] = int(rs.channels_count)
+    stats['exchanges_count'] = int(rs.exchanges_count)
+    stats['queues_count'] = int(rs.queues_count)
+    stats['consumers_count'] = int(rs.consumers_count)
 
     return stats
-
-
+# Log messages to collect logger
 def log(t, message):
     if t == 'err':
         collectd.error('%s: %s' %(NAME, message))
@@ -112,6 +120,11 @@ def log(t, message):
         collectd.info('%s: %s' %(NAME, message))
     else:
         collectd.info('%s: %s' %(NAME, message))
+
+# Debug
+status = get_rabbitmqctl_status()
+for s in status:
+    print s, status[s]
 
 # Register to collectd
 collectd.register_config(configure_callback)
