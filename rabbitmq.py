@@ -1,39 +1,51 @@
 import collectd
 import subprocess
 
+
 NAME = 'rabbitmq_status'
 RABBITMQCTL_BIN = '/usr/sbin/rabbitmqctl'
 VERBOSE = True
 
 class RabbitMqReport():
-    def __init__(self, message):
-        self.message = message
-        self.stats_array = []
+    def __init__(self, report):
+        self.report = report
+        self.status = self.get_status('Status of')
+        self.status_array = []
 
         # Remove unnecessary outputs
-        beg = message.find('[')
-        end = message.rfind(']') + 1
-        self.message = message[beg:end].strip()
+        beg = self.status.find('[')
+        end = self.status.rfind(']') + 1
+        self.status = self.status[beg:end].strip()
 
         # Create stats array
-        for m in self.message.split(','):
+        for m in self.status.split(','):
             m = self.clear_line(m.strip())
-            self.stats_array.append(m)
+            self.status_array.append(m)
 
-        self.file_descriptors = self.get_stat('total_used')
-        self.socket_descriptors = self.get_stat('sockets_used')
-        self.erlang_processes = self.get_stat('used')
-        self.memory = self.get_stat('total')
-        self.disk_space = self.get_stat('disk_free')
-        self.uptime = self.get_stat('uptime')
+        self.file_descriptors = self.get_status('total_used')
+        self.socket_descriptors = self.get_status('sockets_used')
+        self.erlang_processes = self.get_status('used')
+        self.memory = self.get_status('total')
+        self.disk_space = self.get_status('disk_free')
+        self.uptime = self.get_status('uptime')
+        self.connections_count = get_count('Connections:')
+        self.log('CCCCC: %d' %sekf.connections_count)
+
+    def get_count(self, stat):
+        return len(stat.split('\n')) - 1
+
+    def get_infos(report, info_name):
+        beg = report.find(info_name)
+        end = report.find('\n\n', beg)
+        return report[beg:end]
 
     # Return stat value from name
-    def get_stat(self, stat_name):
+    def get_status(self, stat_name):
         try:
-            stat_index = self.stats_array.index(stat_name) + 1
+            stat_index = self.status_array.index(stat_name) + 1
         except:
             return None
-        return self.stats_array[stat_index]
+        return self.status_array[stat_index]
     
     # Clear unneecessary chars from stats
     def clear_line(self, line):
@@ -74,7 +86,7 @@ def get_rabbitmqctl_status():
 
     # Execute rabbitmqctl
     try:
-        p = subprocess.Popen([RABBITMQCTL_BIN, 'status'], shell=False,
+        p = subprocess.Popen([RABBITMQCTL_BIN, 'report'], shell=False,
                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     except:
         log('err', 'Failed to run %s' %RABBITMQCTL_BIN)
