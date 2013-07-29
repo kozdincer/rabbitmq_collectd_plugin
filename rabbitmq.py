@@ -55,7 +55,7 @@ class RabbitMqReport():
         self.consumers_count = self.get_count('Consumers on')
 
     def get_count(self, stat):
-        count = len(self.get_infos(stat).split('\n')) - 1
+        count = len(self.get_infos(stat).split('\n')) - 2
         return count
 
     def get_infos(self, info_name):
