@@ -1,6 +1,26 @@
+#!/usr/bin/env python
+# -*- coding: utf-8; -*-
+"""
+Copyright (C) 2013 - Kaan Özdinçer <kaanozdincer@gmail.com>
+
+This file is part of rabbitmq-collect-plugin.
+
+rabbitmq-collectd-plugin is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+rabbitmq-collectd-plugin is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>
+
+"""
 import collectd
 import subprocess
-
 
 NAME = 'rabbitmq_status'
 RABBITMQCTL_BIN = '/usr/sbin/rabbitmqctl'
@@ -83,7 +103,6 @@ def read_callback():
         value.values = [int(info[key])]
         value.dispatch()
     
-
 # Get all statistics with rabbitmqctl
 def get_rabbitmqctl_status():
     stats = {}
@@ -110,6 +129,7 @@ def get_rabbitmqctl_status():
     stats['consumers_count'] = int(rs.consumers_count)
 
     return stats
+
 # Log messages to collect logger
 def log(t, message):
     if t == 'err':
@@ -121,10 +141,6 @@ def log(t, message):
     else:
         collectd.info('%s: %s' %(NAME, message))
 
-# Debug
-status = get_rabbitmqctl_status()
-for s in status:
-    print s, status[s]
 
 # Register to collectd
 collectd.register_config(configure_callback)
