@@ -20,63 +20,62 @@ along with this program. If not, see <http://www.gnu.org/licenses/>
 
 """
 import collectd
-import subprocess
+import urllib2
+import json
 
 NAME = 'rabbitmq'
-RABBITMQCTL_BIN = '/usr/sbin/rabbitmqctl'
+HOST = 'localhost'
+PORT = '15672'
+USER = 'guest'
+PASS = 'guest'
 VERBOSE = True
 
-class RabbitMqReport():
-    def __init__(self, report):
-        self.report = report
-        self.status = self.get_infos('Status of')
-        self.status_array = []
-
-        # Remove unnecessary outputs
-        beg = self.status.find('[')
-        end = self.status.rfind(']') + 1
-        self.status = self.status[beg:end].strip()
-
-        # Create stats array
-        for m in self.status.split(','):
-            m = self.clear_line(m.strip())
-            self.status_array.append(m)
-
-        self.file_descriptors = self.get_status('total_used')
-        self.socket_descriptors = self.get_status('sockets_used')
-        self.erlang_processes = self.get_status('used')
-        self.memory = self.get_status('total')
-        self.disk_space = self.get_status('disk_free')
-        self.uptime = self.get_status('uptime')
-        self.connections_count = self.get_count('Connections:')
-        self.channels_count = self.get_count('Channels:')
-        self.exchanges_count = self.get_count('Exchanges on')
-        self.queues_count = self.get_count('Queues on')
-        self.consumers_count = self.get_count('Consumers on')
-
-    def get_count(self, stat):
-        count = len(self.get_infos(stat).split('\n')) - 2
-        return count
-
-    def get_infos(self, info_name):
-        beg = self.report.find(info_name)
-        end = self.report.find('\n\n', beg)
-        return self.report[beg:end]
-
-    # Return stat value from name
-    def get_status(self, stat_name):
-        try:
-            stat_index = self.status_array.index(stat_name) + 1
-        except:
-            return None
-        return self.status_array[stat_index]
+# Get all statistics with rabbitmqctl
+def get_rabbitmqctl_status():
+    stats = {}
     
-    # Clear unneecessary chars from stats
-    def clear_line(self, line):
-        unnec_chars = ['[', ']', '{', '}', ',', '"', '\\n']
-        for uc in unnec_chars:
-            line = line.replace(uc, '')
-        return line
+    #url = 'http://%s:%s/api/overview' %(HOST, PORT)
+    #passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+    #passman.add_password(None, url, USER, PASS)
+    #authhandler = urllib2.HTTPBasicAuthHandler(passman)
+    #opener = urllib2.build_opener(authhandler)
+    #urllib2.install_opener(opener)
+    #overview_json = urllib2.urlopen(url).read() 
+
+    with open('my.json') as my:
+        overview = json.load(my)
+
+    with open('nodes.json') as my:
+        nodes = json.load(my)
+
+    # Message Stats
+    stats['ack_rate'] = int(overview['message_stats']['ack_details']['rate'])
+    stats['deliver_rate'] = int(overview['message_stats']['deliver_details']['rate'])
+    stats['publish_rate'] = int(overview['message_stats']['publish_details']['rate'])
+
+    # Queue Totals
+    stats['messages_total'] = int(overview['queue_totals']['messages'])
+    stats['messages_ready'] = int(overview['queue_totals']['messages_ready'])
+    stats['messages_unack'] = int(overview['queue_totals']['messages_unacknowledged'])
+
+    # Object Totals
+    stats['channels'] = int(overview['object_totals']['channels'])
+    stats['connections'] = int(overview['object_totals']['connections'])
+    stats['consumers'] = int(overview['object_totals']['consumers'])
+    stats['exchanges'] = int(overview['object_totals']['exchanges'])
+    stats['queues'] = int(overview['object_totals']['queues'])
+
+    # Node Stats
+    stats['fd_total'] = int(nodes[0]['fd_total'])
+    stats['fd_used'] = int(nodes[0]['fd_used'])
+    stats['mem_limit'] = int(nodes[0]['mem_limit'])
+    stats['mem_used'] = int(nodes[0]['mem_used'])
+    stats['sockets_total'] = int(nodes[0]['sockets_total'])
+    stats['sockets_used'] = int(nodes[0]['sockets_used'])
+    stats['proc_total'] = int(nodes[0]['proc_total'])
+    stats['proc_used'] = int(nodes[0]['proc_used'])
+
+    return stats
 
 # Config data from collectd
 def configure_callback(conf):
@@ -103,33 +102,6 @@ def read_callback():
         value.values = [int(info[key])]
         value.dispatch()
     
-# Get all statistics with rabbitmqctl
-def get_rabbitmqctl_status():
-    stats = {}
-
-    # Execute rabbitmqctl
-    try:
-        p = subprocess.Popen([RABBITMQCTL_BIN, 'report'], shell=False,
-                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    except:
-        log('err', 'Failed to run %s' %RABBITMQCTL_BIN)
-        return None
-
-    rs = RabbitMqReport(p.stdout.read())
-    stats['file_descriptors'] = int(rs.file_descriptors)
-    stats['socket_descriptors'] = int(rs.socket_descriptors)
-    stats['erlang_processes'] = int(rs.erlang_processes)
-    stats['memory'] = int(rs.memory)
-    stats['disk_space'] = int(rs.disk_space)
-    stats['uptime'] = int(rs.uptime)
-    stats['connections_count'] = int(rs.connections_count)
-    stats['channels_count'] = int(rs.channels_count)
-    stats['exchanges_count'] = int(rs.exchanges_count)
-    stats['queues_count'] = int(rs.queues_count)
-    stats['consumers_count'] = int(rs.consumers_count)
-
-    return stats
-
 # Log messages to collect logger
 def log(t, message):
     if t == 'err':
@@ -141,6 +113,7 @@ def log(t, message):
     else:
         collectd.info('%s: %s' %(NAME, message))
 
+print get_rabbitmqctl_status()
 
 # Register to collectd
 collectd.register_config(configure_callback)
