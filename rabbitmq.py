@@ -27,10 +27,6 @@ class RabbitMqReport():
         self.disk_space = self.get_stat('disk_free')
         self.uptime = self.get_stat('uptime')
 
-    # Return all 'rabbitmqctl status' output
-    def get_status(self):
-        return self.message
-
     # Return stat value from name
     def get_stat(self, stat_name):
         try:
