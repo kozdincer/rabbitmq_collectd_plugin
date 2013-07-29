@@ -22,7 +22,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>
 import collectd
 import subprocess
 
-NAME = 'rabbitmq_status'
+NAME = 'rabbitmq'
 RABBITMQCTL_BIN = '/usr/sbin/rabbitmqctl'
 VERBOSE = True
 
@@ -146,3 +146,4 @@ def log(t, message):
 collectd.register_config(configure_callback)
 collectd.warning('Initialising %s' %NAME)
 collectd.register_read(read_callback)
+
