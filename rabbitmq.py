@@ -33,14 +33,14 @@ VERBOSE = True
 # Get all statistics with rabbitmqctl
 def get_rabbitmqctl_status():
     stats = {}
-    
+
     url_overview = 'http://%s:%s/api/overview' %(HOST, PORT)
     passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
     passman.add_password(None, url_overview, USER, PASS)
     authhandler = urllib2.HTTPBasicAuthHandler(passman)
     opener = urllib2.build_opener(authhandler)
     urllib2.install_opener(opener)
-    overview = json.load(urllib2.urlopen(url_overview)) 
+    overview = json.load(urllib2.urlopen(url_overview))
 
     url_nodes = 'http://%s:%s/api/nodes' %(HOST, PORT)
     passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
@@ -103,7 +103,7 @@ def configure_callback(conf):
 def read_callback():
     log('verb', 'read_callback Running')
     info = get_rabbitmqctl_status()
-    
+
     # Send keys to collectd
     for key in info:
         log('verb', 'Sent value: %s %i' %(key, info[key]))
@@ -112,7 +112,7 @@ def read_callback():
         value.type_instance = key
         value.values = [int(info[key])]
         value.dispatch()
-    
+
 # Log messages to collect logger
 def log(t, message):
     if t == 'err':
