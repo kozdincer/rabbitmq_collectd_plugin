@@ -82,6 +82,7 @@ def get_rabbitmqctl_status():
 # Config data from collectd
 def configure_callback(conf):
     log('verb', 'configure_callback Running')
+    global NAME, HOST, PORT, USER, PASS, VERBOSE
     for node in conf.children:
         if node.key == 'Name':
             NAME = node.values[0]
@@ -118,8 +119,9 @@ def log(t, message):
         collectd.error('%s: %s' %(NAME, message))
     elif t == 'warn':
         collectd.warning('%s: %s' %(NAME, message))
-    elif t == 'verb' and VERBOSE == True:
-        collectd.info('%s: %s' %(NAME, message))
+    elif t == 'verb':
+        if VERBOSE == True:
+            collectd.info('%s: %s' %(NAME, message))
     else:
         collectd.info('%s: %s' %(NAME, message))
 
