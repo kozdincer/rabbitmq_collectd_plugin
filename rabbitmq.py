@@ -89,7 +89,7 @@ def configure_callback(conf):
         elif node.key == 'Host':
             HOST = node.values[0]
         elif node.key == 'Port':
-            PORT = node.values[0]
+            PORT = int(node.values[0])
         elif node.key == 'User':
             USER = node.values[0]
         elif node.key == 'Pass':
